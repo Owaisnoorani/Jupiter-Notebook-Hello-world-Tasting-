@@ -1,0 +1,214 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNEwFp7gNlYDMiHehs3fc66",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Owaisnoorani/Jupiter-Notebook-Hello-world-Tasting-/blob/main/Leave%20Management%20System%20%20\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from fpdf import FPDF\n",
+        "from datetime import datetime\n",
+        "\n",
+        "employees = {\n",
+        "    '101': {'name': 'John Doe', 'leave_balance': 15},\n",
+        "    '102': {'name': 'Jane Smith', 'leave_balance': 10}\n",
+        "}\n",
+        "\n",
+        "leave_requests = {}\n",
+        "\n",
+        "# Function to apply for leave\n",
+        "def apply_for_leave():\n",
+        "    emp_id = input(\"Enter Employee ID: \")\n",
+        "    if emp_id in employees:\n",
+        "        name = employees[emp_id]['name']\n",
+        "        leave_days = int(input(\"Enter number of leave days: \"))\n",
+        "        reason = input(\"Enter reason for leave: \")\n",
+        "\n",
+        "        if leave_days <= employees[emp_id]['leave_balance']:\n",
+        "            # Store the leave request details\n",
+        "            leave_requests[emp_id] = {\n",
+        "                'name': name,\n",
+        "                'leave_days': leave_days,\n",
+        "                'reason': reason,\n",
+        "                'status': 'Pending'\n",
+        "            }\n",
+        "\n",
+        "            # Deduct leave balance\n",
+        "            employees[emp_id]['leave_balance'] -= leave_days\n",
+        "\n",
+        "            # Print PDF of leave details\n",
+        "            generate_leave_pdf(emp_id, name, leave_days, reason)\n",
+        "\n",
+        "            print(f\"Leave request submitted for {name}.\")\n",
+        "            print(\"Your request is pending, please wait a moment. Thank you.\")\n",
+        "        else:\n",
+        "            print(\"Insufficient leave balance.\")\n",
+        "    else:\n",
+        "        print(\"Invalid Employee ID.\")\n",
+        "\n",
+        "# Function to generate PDF of leave details\n",
+        "def generate_leave_pdf(emp_id, name, leave_days, reason):\n",
+        "    pdf = FPDF()\n",
+        "    pdf.add_page()\n",
+        "    pdf.set_font(\"Arial\", size=12)\n",
+        "\n",
+        "    # Adding title\n",
+        "    pdf.cell(200, 10, txt=\"Leave Request Details\", ln=True, align='C')\n",
+        "\n",
+        "    # Adding details\n",
+        "    pdf.ln(10)\n",
+        "    pdf.cell(200, 10, txt=f\"Employee ID: {emp_id}\", ln=True)\n",
+        "    pdf.cell(200, 10, txt=f\"Employee Name: {name}\", ln=True)\n",
+        "    pdf.cell(200, 10, txt=f\"Leave Days: {leave_days}\", ln=True)\n",
+        "    pdf.cell(200, 10, txt=f\"Reason for Leave: {reason}\", ln=True)\n",
+        "\n",
+        "    # Status\n",
+        "    pdf.ln(10)\n",
+        "    pdf.cell(200, 10, txt=\"Status: Pending\", ln=True)\n",
+        "\n",
+        "    # Date of request\n",
+        "    pdf.cell(200, 10, txt=f\"Date of Request: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\", ln=True)\n",
+        "\n",
+        "    # Save the PDF\n",
+        "    file_name = f\"leave_request_{emp_id}.pdf\"\n",
+        "    pdf.output(file_name)\n",
+        "\n",
+        "    print(f\"PDF generated: {file_name}\")\n",
+        "\n",
+        "# Function to process leave request\n",
+        "def process_leave_request():\n",
+        "    emp_id = input(\"Enter Employee ID to process: \")\n",
+        "    if emp_id in leave_requests:\n",
+        "        decision = input(\"Enter decision (Approve/Reject): \")\n",
+        "        if decision.lower() in ['approve', 'reject']:\n",
+        "            leave_requests[emp_id]['status'] = decision.capitalize()\n",
+        "            print(f\"Leave request for {leave_requests[emp_id]['name']} has been {decision}.\")\n",
+        "        else:\n",
+        "            print(\"Invalid decision. Please enter 'Approve' or 'Reject'.\")\n",
+        "    else:\n",
+        "        print(\"No leave request found for this Employee ID.\")\n",
+        "\n",
+        "# Function to check leave status\n",
+        "def check_leave_status():\n",
+        "    emp_id = input(\"Enter Employee ID to check status: \")\n",
+        "    if emp_id in leave_requests:\n",
+        "        request = leave_requests[emp_id]\n",
+        "        print(f\"Leave Status for {request['name']}: {request['status']}\")\n",
+        "    else:\n",
+        "        print(\"No leave request found for this Employee ID.\")\n",
+        "\n",
+        "# Main menu\n",
+        "while True:\n",
+        "    print(\"\\nLeave Management System\")\n",
+        "    print(\"1. Apply for Leave\")\n",
+        "    print(\"2. Process Leave Request\")\n",
+        "    print(\"3. Check Leave Status\")\n",
+        "    print(\"4. Exit\")\n",
+        "\n",
+        "    choice = input(\"Enter your choice: \")\n",
+        "\n",
+        "    if choice == '1':\n",
+        "        apply_for_leave()\n",
+        "    elif choice == '2':\n",
+        "        process_leave_request()\n",
+        "    elif choice == '3':\n",
+        "        check_leave_status()\n",
+        "    elif choice == '4':\n",
+        "        break\n",
+        "    else:\n",
+        "        print(\"Invalid choice. Please enter a number between 1 and 4.\")\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "fzYS0vUhoCSL",
+        "outputId": "5ab079c8-d945-486d-e658-64686c83929d"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "\n",
+            "Leave Management System\n",
+            "1. Apply for Leave\n",
+            "2. Process Leave Request\n",
+            "3. Check Leave Status\n",
+            "4. Exit\n",
+            "Enter your choice: 1\n",
+            "Enter Employee ID: 101\n",
+            "Enter number of leave days: 2\n",
+            "Enter reason for leave: I very ill\n",
+            "PDF generated: leave_request_101.pdf\n",
+            "Leave request submitted for John Doe.\n",
+            "Your request is pending, please wait a moment. Thank you.\n",
+            "\n",
+            "Leave Management System\n",
+            "1. Apply for Leave\n",
+            "2. Process Leave Request\n",
+            "3. Check Leave Status\n",
+            "4. Exit\n",
+            "Enter your choice: 4\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install fpdf\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "RUZcW1QaokBB",
+        "outputId": "bc5fd224-ad34-41fa-ce2d-0e579a4603a1"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting fpdf\n",
+            "  Downloading fpdf-1.7.2.tar.gz (39 kB)\n",
+            "  Preparing metadata (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "Building wheels for collected packages: fpdf\n",
+            "  Building wheel for fpdf (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for fpdf: filename=fpdf-1.7.2-py2.py3-none-any.whl size=40704 sha256=0c6f629b5b85b670a7baa6c20af9c0e724ea49d65807b37f5e1db1ba000a92f1\n",
+            "  Stored in directory: /root/.cache/pip/wheels/f9/95/ba/f418094659025eb9611f17cbcaf2334236bf39a0c3453ea455\n",
+            "Successfully built fpdf\n",
+            "Installing collected packages: fpdf\n",
+            "Successfully installed fpdf-1.7.2\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
